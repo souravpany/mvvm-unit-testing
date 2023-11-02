@@ -29,7 +29,7 @@ class MainViewModel @Inject constructor(
         getProduct()
     }
 
-    fun getProduct() {
+     private fun getProduct() {
         viewModelScope.launch(mainDispatchers) {
             _uiState.value = ApiState.Loading
             repository.getProduct()
