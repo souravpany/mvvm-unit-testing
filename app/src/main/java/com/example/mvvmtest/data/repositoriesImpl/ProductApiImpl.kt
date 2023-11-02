@@ -11,7 +11,7 @@ class ProductApiImpl @Inject constructor(
     /**
      * Api call to get all product
      */
-    suspend fun getProduct(): List<ProductListItem> {
+    suspend fun getProduct(): ArrayList<ProductListItem> {
         return apiService.getProducts()
     }
 }

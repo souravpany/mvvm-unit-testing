@@ -20,16 +20,18 @@ class MainViewModel @Inject constructor(
     @MainDispatcher private val mainDispatchers: CoroutineDispatcher
 ) : ViewModel() {
 
+    var sortedProductList = ArrayList<ProductListItem>()
 
-    private val _uiState = MutableStateFlow<ApiState<List<ProductListItem>>>(ApiState.Loading)
 
-    val uiState: StateFlow<ApiState<List<ProductListItem>>> = _uiState
+    private val _uiState = MutableStateFlow<ApiState<ArrayList<ProductListItem>>>(ApiState.Loading)
+
+    val uiState: StateFlow<ApiState<ArrayList<ProductListItem>>> = _uiState
 
     init {
         getProduct()
     }
 
-     private fun getProduct() {
+    private fun getProduct() {
         viewModelScope.launch(mainDispatchers) {
             _uiState.value = ApiState.Loading
             repository.getProduct()
@@ -37,7 +39,9 @@ class MainViewModel @Inject constructor(
                 .catch { exp ->
                     _uiState.value = ApiState.Error(exp.toString())
                 }.collect {
-                    _uiState.value = ApiState.Success(it)
+                    it.sortBy { data -> data.id }
+                    sortedProductList = it
+                    _uiState.value = ApiState.Success(sortedProductList)
                 }
 
         }

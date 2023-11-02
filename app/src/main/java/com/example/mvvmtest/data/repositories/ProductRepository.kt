@@ -12,5 +12,5 @@ class ProductRepository @Inject constructor(
     /**
      * Get all product from Api
      */
-    fun getProduct(): Flow<List<ProductListItem>> = flow { emit(productApiImpl.getProduct()) }
+    fun getProduct(): Flow<ArrayList<ProductListItem>> = flow { emit(productApiImpl.getProduct()) }
 }

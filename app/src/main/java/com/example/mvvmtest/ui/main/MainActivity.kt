@@ -17,10 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mvvmtest.R
 import com.example.mvvmtest.data.models.ProductListItem
 import com.example.mvvmtest.databinding.ActivityMainBinding
+import com.example.mvvmtest.di.IODispatchers
+import com.example.mvvmtest.di.MainDispatcher
 import com.example.mvvmtest.utils.ApiState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
+
+const val SORT_BY_PRICE: String = "SORT_BY_PRICE"
+const val SORT_BY_TITLE: String = "SORT_BY_TITLE"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -28,7 +33,15 @@ class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
-    private var sortedProductList = ArrayList<ProductListItem>()
+
+
+    @IODispatchers
+    @Inject
+    lateinit var ioDispatchers: CoroutineDispatcher
+
+    @MainDispatcher
+    @Inject
+    lateinit var mainDispatchers: CoroutineDispatcher
 
     @Inject
     lateinit var productListingAdapter: ProductListingAdapter
@@ -46,11 +59,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun renderList(product: List<ProductListItem>) {
-        productListingAdapter.updateAdapter(product as ArrayList<ProductListItem>)
+    private fun renderList(product: ArrayList<ProductListItem>) {
+        productListingAdapter.updateAdapter(product)
         productListingAdapter.notifyDataSetChanged()
     }
-
 
     @Suppress("UNCHECKED_CAST")
     private fun collectFlows() {
@@ -73,9 +85,7 @@ class MainActivity : AppCompatActivity() {
                         is ApiState.Success -> {
                             binding.pbProduct.visibility = View.GONE
                             binding.rvProduct.visibility = View.VISIBLE
-                            uiState.data.sortedBy { it.id }
                             renderList(uiState.data)
-                            sortedProductList = uiState.data as ArrayList<ProductListItem>
                         }
                     }
 
@@ -91,7 +101,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         setupUI()
         collectFlows()
+    }
 
+    private suspend fun sortByProduct(sortType: String) {
+        withContext(mainDispatchers) {
+            binding.pbProduct.visibility = View.VISIBLE
+            binding.rvProduct.visibility = View.GONE
+            withContext(ioDispatchers) {
+                when (sortType) {
+                    SORT_BY_TITLE -> {
+                        mainViewModel.sortedProductList.sortBy { data -> data.title }
+                    }
+                    SORT_BY_PRICE -> {
+                        mainViewModel.sortedProductList.sortBy { data -> data.price }
+                    }
+                }
+                delay(1000)
+            }
+            binding.pbProduct.visibility = View.GONE
+            binding.rvProduct.visibility = View.VISIBLE
+            renderList(mainViewModel.sortedProductList)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -103,13 +133,15 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.title -> {
-                sortedProductList.sortBy { it.title }
-                renderList(sortedProductList)
+                lifecycleScope.launch {
+                    sortByProduct(SORT_BY_TITLE)
+                }
                 true
             }
             R.id.price -> {
-                sortedProductList.sortBy { it.price }
-                renderList(sortedProductList)
+                lifecycleScope.launch {
+                    sortByProduct(SORT_BY_PRICE)
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

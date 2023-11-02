@@ -15,7 +15,7 @@ class ProductListingAdapter @Inject constructor() :
 
     private var productList = ArrayList<ProductListItem>()
 
-    fun updateAdapter(productLists: List<ProductListItem>) {
+    fun updateAdapter(productLists: ArrayList<ProductListItem>) {
         this.productList.clear()
         this.productList.addAll(productLists)
     }
