@@ -3,9 +3,10 @@ buildscript {
         hilt_version = '2.44'
         gson_version = '2.9.0'
         okhttp3_version = '4.9.2'
-        coroutine_lifecycle_version = '2.6.2'
         glide_version = '1.5.3'
         activity_ktx = '1.8.0'
+        view_model_scope_ktx = '2.6.2'
+        lifecycle_scope_ktx = '2.6.2'
     }
 }
 

@@ -73,6 +73,10 @@ dependencies {
 
     //ktx
     implementation "androidx.activity:activity-ktx:$activity_ktx"
+    //view-model-scope
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$view_model_scope_ktx"
+    //lifecycle-scope for coroutines
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_scope_ktx"
 
     // Glide
     implementation "com.github.skydoves:landscapist-glide:$glide_version"

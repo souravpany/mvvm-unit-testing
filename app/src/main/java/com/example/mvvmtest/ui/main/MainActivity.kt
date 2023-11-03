@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mvvmtest.R
 import com.example.mvvmtest.data.models.ProductListItem
 import com.example.mvvmtest.databinding.ActivityMainBinding
+import com.example.mvvmtest.di.DefaultDispatchers
 import com.example.mvvmtest.di.IODispatchers
 import com.example.mvvmtest.di.MainDispatcher
 import com.example.mvvmtest.utils.ApiState
@@ -34,14 +35,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-
+    // for any back ground task - like network and disk-related work
     @IODispatchers
     @Inject
     lateinit var ioDispatchers: CoroutineDispatcher
 
+    // It the UI thread of Android
     @MainDispatcher
     @Inject
     lateinit var mainDispatchers: CoroutineDispatcher
+
+    // Is used to do CPU-intensive work
+    @DefaultDispatchers
+    @Inject
+    lateinit var defaultDispatchers: CoroutineDispatcher
 
     @Inject
     lateinit var productListingAdapter: ProductListingAdapter
@@ -107,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         withContext(mainDispatchers) {
             binding.pbProduct.visibility = View.VISIBLE
             binding.rvProduct.visibility = View.GONE
-            withContext(ioDispatchers) {
+            withContext(defaultDispatchers) {
                 when (sortType) {
                     SORT_BY_TITLE -> {
                         mainViewModel.sortedProductList.sortBy { data -> data.title }
