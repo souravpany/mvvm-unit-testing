@@ -3,6 +3,7 @@ package com.example.mvvmtest.ui.main
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mvvmtest.R
@@ -15,9 +16,13 @@ class ProductListingAdapter @Inject constructor() :
 
     private var productList = ArrayList<ProductListItem>()
 
-    fun updateAdapter(productLists: ArrayList<ProductListItem>) {
+    fun updateAdapter(newProductLists: ArrayList<ProductListItem>) {
+
+        val itemDiffCallback = ItemDiffCallback(oldList = productList, newList = newProductLists)
+        val diffResult = DiffUtil.calculateDiff(itemDiffCallback)
         this.productList.clear()
-        this.productList.addAll(productLists)
+        this.productList.addAll(newProductLists)
+        diffResult.dispatchUpdatesTo(this)
     }
 
 
@@ -64,4 +69,6 @@ class ProductListingAdapter @Inject constructor() :
             str
         }
     }
+
+
 }

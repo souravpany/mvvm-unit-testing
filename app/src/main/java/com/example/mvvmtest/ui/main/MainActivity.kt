@@ -63,12 +63,12 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.rvProduct.adapter = productListingAdapter
+
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun renderList(product: ArrayList<ProductListItem>) {
         productListingAdapter.updateAdapter(product)
-        productListingAdapter.notifyDataSetChanged()
+        binding.rvProduct.layoutManager?.scrollToPosition(0)
     }
 
     @Suppress("UNCHECKED_CAST")
